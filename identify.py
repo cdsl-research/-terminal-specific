@@ -220,9 +220,11 @@ def compare_name(name):
     identify_dic[name].update(common_addresses)
 
 if __name__ == "__main__":
-    # CSVファイルのパス
-    csv_path = "/home/sora/late_period/outputs/oct_week3/oct_week3-error.csv"
-    write_file = "/home/sora/late_period/outputs/oct_week3/oct_week3_identify.txt"
+    # DDNS-DHCPログのCSVファイルのパス
+    csv_path = "./ddns-dhcp-log.csv"
+
+    # 保存するtxtファイルのパス
+    write_file = "./test.txt"
 
     # エクセルファイルを読み込む
     csv_readr(csv_path)
