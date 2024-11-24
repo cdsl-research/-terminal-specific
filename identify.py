@@ -3,20 +3,20 @@ import csv
 import pandas as pd
 from datetime import datetime
 
-# [("学生の名前", "出席 or 欠席 or 遅刻"]の形にする
+# 10月15日～18日
 member_dic = {
   "Monday": [[("ユーザ1", "出席"), ("ユーザ2", "出席"), 
-                 ("ユーザ3", "出席")]
+                 ("ユーザ3", "出席")]],
   "Tuesday": [[("ユーザ1", "出席"), ("ユーザ4", "出席"), 
-                 ("ユーザ5", "出席")],
-  "Wednesday": [[("ユーザ4", "出席"), ("ユーザ3", "遅刻"), 
-                 ("ユーザ2", "出席")],
+                 ("ユーザ5", "出席")]],
+  "Wednesday": [[("ユーザ4", "出席"), ("ユーザ3", "出席"), 
+                 ("ユーザ2", "出席")]],
 
-  "Thursday": [[("ユーザ3", "出席"), ("ユーザ1, "出席"), 
+  "Thursday": [[("ユーザ3", "出席"), ("ユーザ1", "出席"), 
                  ("ユーザ5", "出席")]],
 
-  "Friday": [[("ユーザ5", "欠席"), ("ユーザ4", "遅刻"), 
-                 ("ユーザ2", "出席")]]]
+  "Friday": [[("ユーザ5", "出席"), ("ユーザ4", "出席"), 
+                 ("ユーザ2", "出席")]]
 }
 
 #removeのMACアドレスをホスト名から探すための辞書
@@ -107,11 +107,10 @@ def cul(lst):
                     except KeyError:
                         pass
         elif log_time < "10:45:00":
-          # 1限以降の授業があればconitnueをコメントアウト
-          continue
         #and weekday != "Friday": #金曜日は1限のみのため
-            if len(address_dic[weekday][1]) < 1:
-                address_dic[weekday][1] = copy.deepcopy(address_dic[weekday][0])  
+            #if len(address_dic[weekday][1]) < 1:
+                #address_dic[weekday][1] = copy.deepcopy(address_dic[weekday][0])
+            continue
             if dns_map == "add":
                 print("bb")
                 address_dic[weekday][1].append(mac_address)
@@ -177,6 +176,7 @@ def compare_name(name):
     # 引数nameが受講している授業の曜日と時限をcomparison_targetsに格納する
     for day in days_lst:
         for i, member_list in enumerate(member_dic[day]):
+            sit_attend =""
             print(f"member_list: {member_list}, i: {i}, name: {name}, type: {type(name)}")
             for member in member_list:
                 if name in member:
@@ -189,7 +189,7 @@ def compare_name(name):
                         lst_name = "address_dic"
                         comparison_targets.append((day, i, lst_name))
                 else:
-                    pass
+                    continue
                     #print(f"name:{name}, member_lst;{member_list}")
 
     # 指定された名前が含まれるリスト間での比較
@@ -203,7 +203,6 @@ def compare_name(name):
             identify_dic[name].update(base_address_list)
         
         for compare_day, compare_index, compare_lst_name in comparison_targets:
-            print(f"compare_lst_name: {compare_lst_name}")
             compare_lst_name = globals()[compare_lst_name]
             compare_address_list = set(compare_lst_name[compare_day][compare_index])
             if base_day == compare_day and base_index == compare_index:
@@ -212,7 +211,10 @@ def compare_name(name):
             print(f"base_day: {base_day}, base_index: {base_index}, name: {name}")
             print(f"compare_day: {compare_day}, compare_index: {compare_index}")
             print(f"base_address_list: {base_address_list}")
+            print(f"base_lst_name: {base_lst_name}, compare_lst_name: {compare_lst_name}")
             print(f"compare_address_list: {compare_address_list}")
+            if len(identify_dic[name]) > 0:
+                compare_address_list = identify_dic[name]
             common_elements = base_address_list.intersection(compare_address_list)
             print(f"common_ele:{common_elements}")
             if common_addresses:
@@ -220,13 +222,12 @@ def compare_name(name):
             else:
                 common_addresses.update(common_elements)
     identify_dic[name].update(common_addresses)
+    print(f"identify_dic: {identify_dic}")
 
 if __name__ == "__main__":
-    # DDNS-DHCPログのCSVファイルのパス
-    csv_path = "./ddns-dhcp-log.csv"
-
-    # 保存するtxtファイルのパス
-    write_file = "./test.txt"
+    # CSVファイルのパス
+    csv_path = "/home/sora/late_period/outputs/ddns-dhcp-log.csv"
+    write_file = "/home/sora/late_period/outputs/oct_week3/test-git.txt"
 
     # エクセルファイルを読み込む
     csv_readr(csv_path)
@@ -241,8 +242,26 @@ if __name__ == "__main__":
     # すべてのメンバーのリストを比較する
     compare_all_members()
 
+    # 重複排除
+    unique_lst = []
+    for name, address in identify_dic.copy().items():
+        if len(address) == 1:
+            unique_lst.append(address)
+        elif len(address) > 1:
+            for mac in address.copy():
+                is_in_unique_lst = any(mac in unique_set for unique_set in unique_lst)
+                if is_in_unique_lst:
+                    address.remove(mac)
+                    print(f"address: {address}")
+                    identify_dic[name].update(address)
+                else:
+                    print(f"mac: {mac}, unique_lst: {unique_lst}")
+                    print(mac in unique_lst)
+
+
+
     # identify_dicの結果を表示
-    print("----------")
+    print("########")
     with open(write_file, mode='w') as write_file:
         for name, addresses in identify_dic.items():
             print(f"{name}: {addresses}", file=write_file)  # file引数を使用
