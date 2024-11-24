@@ -107,6 +107,8 @@ def cul(lst):
                     except KeyError:
                         pass
         elif log_time < "10:45:00":
+          # 1限以降の授業があればconitnueをコメントアウト
+          continue
         #and weekday != "Friday": #金曜日は1限のみのため
             if len(address_dic[weekday][1]) < 1:
                 address_dic[weekday][1] = copy.deepcopy(address_dic[weekday][0])  
