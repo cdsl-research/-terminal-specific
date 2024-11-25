@@ -1,4 +1,4 @@
-# -terminal-specific
+# terminal-specific
 - DHCPサーバを用いてユーザの所有する端末を特定するソフトウェアです．
 
 - identify.pyの"member_dic"の中身に，各学生の一週間の授業の出席状況と学生名を記述する．
